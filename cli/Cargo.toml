@@ -14,5 +14,7 @@ log = "0.4"
 indicatif = "0.17.7"
 colored = "2"
 
+futures = "0.3"
+
 [dependencies.spicy-launcher-core]
 path = "../core"

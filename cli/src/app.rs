@@ -28,7 +28,7 @@ impl App {
         Ok(self.client.get_releases(game).await?)
     }
 
-    fn find_version(&self, version: Option<String>, releases: Vec<Release>) -> Result<Release> {
+    pub fn find_version(&self, version: Option<String>, releases: Vec<Release>) -> Result<Release> {
         if releases.is_empty() {
             return Err(anyhow!("No releases found/installed :("));
         }
@@ -164,3 +164,120 @@ impl App {
         Ok(())
     }
 }
+
+// #[cfg(test)]
+// mod tests;
+
+// #[cfg(test)]
+// mod tests {
+//     // https://doc.rust-lang.org/rust-by-example/testing/unit_testing.html
+//     use super::*;
+
+//     // FAKE object
+//     // instead of using github api to get releases, we create a fake release object
+//     fn create_fake_release(version: &str, name: &str, prerelease: bool) -> Release {
+//         Release {
+//             version: version.to_string(),  // &str -> String conversion (for ownership)
+//             name: name.to_string(),
+//             prerelease,
+//             installed: false,
+//             ..Default::default()  // Use default values for other fields
+//         }
+//     }
+
+//     // Test 1: find_version with empty releases (error case)
+//     #[test]
+//     fn test_find_version_with_empty_releases() {
+//         let app = App::new().unwrap();
+//         let releases = vec![];
+
+//         let result = app.find_version(Some("1.0.0".to_string()), releases);
+//         assert!(result.is_err());
+//         assert!(result.unwrap_err().to_string().contains("No releases found"));
+//     }
+
+//     // Test 2: find_version with existing versions with prefix
+//     #[test]
+//     fn test_find_version_with_existing_version() {
+//         let app = App::new().unwrap();
+//         // let releases = vec![Release {
+//         //     version: "v1.0.0".to_string(),
+//         //     ..Default::default()
+//         // }];
+//         let releases = vec![create_fake_release("v1.0.0", "Release v1.0.0", false),
+//             create_fake_release("v2.0.0", "Release v2.0.0", false)];
+
+//         let result1 = app.find_version(Some("v1.0.0".to_string()), releases.clone());
+//         let result2 = app.find_version(Some("v2.0.0".to_string()), releases);
+//         assert!(result1.is_ok());
+//         assert_eq!(result1.unwrap().version, "v1.0.0");
+//         assert!(result2.is_ok());
+//         assert_eq!(result2.unwrap().version, "v2.0.0");
+//     }
+
+//     // Test 3: find_version with existing versions without prefix and test normalization
+//     #[test]
+//     fn test_version_normalization() {
+//         let app = App::new().unwrap();
+//         let releases = vec![
+//             create_fake_release("v1.0.0", "Release 1", false),
+//             create_fake_release("v1.0.1", "Release 2", false),
+//         ];
+
+//         // Test with version starting with 'v'
+//         let result1 = app.find_version(Some("v1.0.1".to_string()), releases.clone());
+//         assert!(result1.is_ok());
+//         assert_eq!(result1.unwrap().version, "v1.0.1");
+
+//         // Test with version not starting with 'v' (should add 'v' prefix)
+//         let result2 = app.find_version(Some("1.0.0".to_string()), releases);
+//         assert!(result2.is_ok());
+//         assert_eq!(result2.unwrap().version, "v1.0.0");
+//     }
+
+//     // Test 4: find_version with non-existing version (error case)
+//     #[test]
+//     fn test_find_version_with_non_existing_version() {
+//         let app = App::new().unwrap();  // Panic if creation fails
+
+//         let releases = vec![
+//             create_fake_release("v1.0.0", "Release 1.0.0", false),
+//             create_fake_release("v2.0.0", "Release 2.0.0", false),
+//         ];
+
+//         let result = app.find_version(Some("3.0.0".to_string()), releases.clone());
+
+//         assert!(result.is_err());  // Should be an error
+//     }
+
+//     // Test 5: find_version with None (should return first release)
+//     #[test]
+//     fn test_find_version_with_none_returns_first() {
+//         let app = App::new().unwrap();
+//         let releases = vec![
+//             create_fake_release("v2.0.0", "Latest Release", false),
+//             create_fake_release("v1.0.0", "Older Release", false),
+//         ];
+
+//         let result = app.find_version(None, releases);
+//         assert!(result.is_ok());
+//         assert_eq!(result.unwrap().version, "v2.0.0");
+//     }
+
+//     // Test 6: Test prerelease version handling (special characters in string)
+//     #[test]
+//     fn test_find_version_with_prerelease() {
+//         let app = App::new().unwrap();
+//         let releases = vec![
+//             create_fake_release("v1.0.0", "Stable Release", false),
+//             create_fake_release("v1.1.0-beta", "Beta Release", true),
+//         ];
+
+//         let result = app.find_version(Some("1.1.0-beta".to_string()), releases);
+//         assert!(result.is_ok());
+//         let found_release = result.unwrap();
+//         assert_eq!(found_release.version, "v1.1.0-beta");
+//         assert!(found_release.prerelease);
+//     }
+
+// }
